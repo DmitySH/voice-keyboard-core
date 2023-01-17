@@ -1,0 +1,8 @@
+audio:
+  chunk_size: 2048
+  channels: 1
+  frequency: 16_000
+  sample_format: 8 # port audio 16 bit int
+
+model:
+  path: "models/russian/vosk-small-0.22"
