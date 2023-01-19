@@ -3,8 +3,8 @@ from typing import NoReturn
 
 import pyaudio
 
-from os_handler.config.class_config.audio_config import AudioConfig
-from os_handler.listener.listener import Listener
+from config.class_config.audio_config import AudioConfig
+from listener.listener import Listener
 
 
 class MicrophoneListener(Listener):

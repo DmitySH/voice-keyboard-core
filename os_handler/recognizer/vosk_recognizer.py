@@ -3,9 +3,9 @@ from copy import copy
 
 from vosk import KaldiRecognizer, Model
 
-from os_handler.config.class_config.audio_config import AudioConfig
-from os_handler.listener.listener import Listener
-from os_handler.recognizer.recognizer import Recognizer
+from config.class_config.audio_config import AudioConfig
+from listener.listener import Listener
+from recognizer.recognizer import Recognizer
 
 
 class VoskRecognizer(Recognizer):

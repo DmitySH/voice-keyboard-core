@@ -4,7 +4,7 @@ import time
 import yaml
 
 from listener.microphone_listener import MicrophoneListener, AudioConfig
-from os_handler.recognizer.vosk_recognizer import VoskRecognizer
+from recognizer.vosk_recognizer import VoskRecognizer
 
 CONFIG_PATH = 'config/config.yaml'
 
