@@ -1,7 +1,7 @@
 import os
 from copy import copy
 from threading import Lock
-from typing import NoReturn, Dict
+from typing import NoReturn
 import json
 
 from vosk import KaldiRecognizer, Model

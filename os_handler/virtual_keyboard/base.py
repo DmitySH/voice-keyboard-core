@@ -3,5 +3,5 @@ from typing import NoReturn
 
 
 class Keyboard(abc.ABC):
-    def handle_command(self, cdm: str) -> NoReturn:
+    def handle_command(self, cmd: str) -> NoReturn:
         raise NotImplementedError()
