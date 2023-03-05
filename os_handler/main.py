@@ -34,7 +34,8 @@ def main():
     listener = MicrophoneListener(audio_config)
     virtual_keyboard = PynputKeyboard(
         config['virtual_keyboard']['commands_path'],
-        config['virtual_keyboard']['vk_codes_path']
+        config['virtual_keyboard']['vk_codes_path'],
+        0.55
     )
     recognizer = VoskRecognizer(listener, config['model']['path'],
                                 virtual_keyboard,

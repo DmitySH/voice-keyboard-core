@@ -52,7 +52,7 @@ class VoskRecognizer(Recognizer):
                 if cmd:
                     trigger_index = cmd.find(self.__trigger)
                     if trigger_index != -1:
-                        cmd = cmd[trigger_index + len(self.__trigger) + 1:]
+                        cmd = cmd[trigger_index + len(self.__trigger):].strip()
                         print(cmd)
                         self.__keyboard.handle_command(cmd)
         print('Stop voice recognition')
