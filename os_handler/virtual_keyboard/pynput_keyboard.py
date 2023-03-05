@@ -1,5 +1,5 @@
 import json
-from typing import NoReturn, Dict
+from typing import NoReturn, Dict, List
 
 from pynput import keyboard
 
@@ -48,10 +48,18 @@ class PynputKeyboard(Keyboard):
         print(f'Executing {hotkey}')
         self.__hotkey(hotkey)
 
-    def __hotkey(self, hotkey: str):
+    def __hotkey(self, hotkey: str) -> NoReturn:
         keys = hotkey.split('+')
+        self.__check_keys(keys)
 
         for key in keys:
             self.__keyboard.press(KeyCode.from_vk(self.__vk_codes[key]))
         for key in keys[::-1]:
             self.__keyboard.release(KeyCode.from_vk(self.__vk_codes[key]))
+
+    def __check_keys(self, keys: List[str]) -> bool:
+        for key in keys:
+            if key not in self.__vk_codes:
+                return False
+
+        return True
