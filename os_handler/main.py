@@ -5,8 +5,11 @@ import yaml
 
 from listener.microphone_listener import MicrophoneListener, AudioConfig
 from recognizer.vosk_recognizer import VoskRecognizer
+from shutdown.graceful import bind_stop_signals
 
 CONFIG_PATH = 'config/config.yaml'
+
+DEFAULT_STOP_POLL_TIME = 3
 
 
 def load_config():
@@ -14,8 +17,8 @@ def load_config():
     with open(CONFIG_PATH) as cfg:
         try:
             config = yaml.safe_load(cfg)
-        except yaml.YAMLError as err:
-            exit(err)
+        except yaml.YAMLError as ex:
+            exit(ex)
     if not config:
         print('Config is not loaded')
         exit(-1)
@@ -30,12 +33,14 @@ def main():
     listener = MicrophoneListener(audio_config)
     recognizer = VoskRecognizer(listener, config['model']['path'],
                                 audio_config)
+    bind_stop_signals(recognizer)
 
-    t = threading.Thread(target=recognizer.recognize_voice)
-    t.start()
+    recognizer_thread = threading.Thread(target=recognizer.recognize_voice)
+    recognizer_thread.start()
 
-    time.sleep(5)
-    recognizer.stop()
+    while not recognizer.is_stopped:
+        time.sleep(DEFAULT_STOP_POLL_TIME)
+    recognizer_thread.join()
 
 
 if __name__ == '__main__':

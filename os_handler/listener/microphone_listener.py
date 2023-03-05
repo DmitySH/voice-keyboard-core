@@ -4,7 +4,7 @@ from typing import NoReturn
 import pyaudio
 
 from config.class_config.audio_config import AudioConfig
-from listener.listener import Listener
+from listener.base import Listener
 
 
 class MicrophoneListener(Listener):

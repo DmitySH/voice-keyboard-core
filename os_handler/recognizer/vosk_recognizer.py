@@ -1,11 +1,13 @@
 import os
 from copy import copy
+from threading import Lock
+from typing import NoReturn
 
 from vosk import KaldiRecognizer, Model
 
 from config.class_config.audio_config import AudioConfig
-from listener.listener import Listener
-from recognizer.recognizer import Recognizer
+from listener.base import Listener
+from recognizer.base import Recognizer
 
 
 class VoskRecognizer(Recognizer):
@@ -19,11 +21,24 @@ class VoskRecognizer(Recognizer):
                                             self.__audio_cfg.frequency)
         self.__listener = listener
         self.__in_work = False
+        self.__is_stopped = False
 
-    def recognize_voice(self):
+        self.__mu = Lock()
+
+    @property
+    def is_stopped(self) -> bool:
+        return self.__is_stopped
+
+    def recognize_voice(self) -> NoReturn:
+        self.__mu.acquire()
+        if self.__is_stopped:
+            print('Recognizer is stopped already')
+            return
+
         self.__listener.listen()
         self.__in_work = True
         print('Start voice recognition')
+        self.__mu.release()
 
         while self.__in_work:
             if self.__recognizer.AcceptWaveform(self.__listener.read()):
@@ -31,6 +46,12 @@ class VoskRecognizer(Recognizer):
         print('Stop voice recognition')
 
         self.__listener.stop()
+        self.__is_stopped = True
 
-    def stop(self):
-        self.__in_work = False
+    def stop(self) -> NoReturn:
+        self.__mu.acquire()
+        if self.__in_work:
+            self.__in_work = False
+        else:
+            self.__is_stopped = True
+        self.__mu.release()
