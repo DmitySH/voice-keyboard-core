@@ -5,6 +5,7 @@ import yaml
 
 from listener.microphone_listener import MicrophoneListener, AudioConfig
 from recognizer.vosk_recognizer import VoskRecognizer
+from virtual_keyboard.pynput_keyboard import PynputKeyboard
 from shutdown.graceful import bind_stop_signals
 
 CONFIG_PATH = 'config/config.yaml'
@@ -31,11 +32,15 @@ def main():
     audio_config = AudioConfig(**config['audio'])
 
     listener = MicrophoneListener(audio_config)
+    virtual_keyboard = PynputKeyboard(config['commands']['path'])
     recognizer = VoskRecognizer(listener, config['model']['path'],
+                                virtual_keyboard,
                                 audio_config)
+
     bind_stop_signals(recognizer)
 
-    recognizer_thread = threading.Thread(target=recognizer.recognize_voice)
+    recognizer_thread = threading.Thread(
+        target=recognizer.recognize_and_handle_command)
     recognizer_thread.start()
 
     while not recognizer.is_stopped:

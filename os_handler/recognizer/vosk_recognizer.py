@@ -1,18 +1,20 @@
 import os
 from copy import copy
 from threading import Lock
-from typing import NoReturn
+from typing import NoReturn, Dict
+import json
 
 from vosk import KaldiRecognizer, Model
 
 from config.class_config.audio_config import AudioConfig
 from listener.base import Listener
 from recognizer.base import Recognizer
+from virtual_keyboard.base import Keyboard
 
 
 class VoskRecognizer(Recognizer):
     def __init__(self, listener: Listener, model_path: str,
-                 audio_cfg: AudioConfig) -> None:
+                 keyboard: Keyboard, audio_cfg: AudioConfig) -> None:
         if not os.path.exists(model_path):
             raise FileNotFoundError(f'No directory with model at {model_path}')
 
@@ -20,16 +22,20 @@ class VoskRecognizer(Recognizer):
         self.__recognizer = KaldiRecognizer(Model(model_path),
                                             self.__audio_cfg.frequency)
         self.__listener = listener
+        self.__keyboard = keyboard
+
         self.__in_work = False
         self.__is_stopped = False
 
         self.__mu = Lock()
 
+        self.__trigger = 'клава'
+
     @property
     def is_stopped(self) -> bool:
         return self.__is_stopped
 
-    def recognize_voice(self) -> NoReturn:
+    def recognize_and_handle_command(self) -> NoReturn:
         self.__mu.acquire()
         if self.__is_stopped:
             print('Recognizer is stopped already')
@@ -42,11 +48,20 @@ class VoskRecognizer(Recognizer):
 
         while self.__in_work:
             if self.__recognizer.AcceptWaveform(self.__listener.read()):
-                print(self.__recognizer.Result())
+                cmd: str = json.loads(self.__recognizer.Result())['text']
+                if cmd:
+                    if cmd.startswith(self.__trigger):
+                        cmd = cmd[len(self.__trigger) + 1:]
+                        print(cmd)
+                        self.__keyboard.handle_command(cmd)
+                # self.__map_command_to_action(res)
         print('Stop voice recognition')
 
         self.__listener.stop()
         self.__is_stopped = True
+
+    def __map_command_to_action(self, cmd: str):
+        print(cmd)
 
     def stop(self) -> NoReturn:
         self.__mu.acquire()

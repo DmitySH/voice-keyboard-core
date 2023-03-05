@@ -3,7 +3,7 @@ from typing import NoReturn
 
 
 class Recognizer(abc.ABC):
-    def recognize_voice(self) -> NoReturn:
+    def recognize_and_handle_command(self) -> NoReturn:
         raise NotImplementedError()
 
     def stop(self) -> NoReturn:
