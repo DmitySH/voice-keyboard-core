@@ -50,18 +50,15 @@ class VoskRecognizer(Recognizer):
             if self.__recognizer.AcceptWaveform(self.__listener.read()):
                 cmd: str = json.loads(self.__recognizer.Result())['text']
                 if cmd:
-                    if cmd.startswith(self.__trigger):
-                        cmd = cmd[len(self.__trigger) + 1:]
+                    trigger_index = cmd.find(self.__trigger)
+                    if trigger_index != -1:
+                        cmd = cmd[trigger_index + len(self.__trigger) + 1:]
                         print(cmd)
                         self.__keyboard.handle_command(cmd)
-                # self.__map_command_to_action(res)
         print('Stop voice recognition')
 
         self.__listener.stop()
         self.__is_stopped = True
-
-    def __map_command_to_action(self, cmd: str):
-        print(cmd)
 
     def stop(self) -> NoReturn:
         self.__mu.acquire()

@@ -6,13 +6,25 @@ from pynput import keyboard
 from virtual_keyboard.base import Keyboard
 from pynput.keyboard import Controller, Key, KeyCode
 
+CHAR_TO_VK_CODE = {
+    'ctrl': 17,
+    'c': 67,
+    'с': 67,
+    'v': 86,
+    'м': 86,
+}
+
+# DEBUG
+DEBUG = False
+
 
 def print_pressed_keys(key):
-    try:
-        print(key.vk)
-        print(key)
-    except Exception as ex:
-        print(f'Error on listening keyboard: {ex}')
+    if DEBUG:
+        try:
+            print(key.vk)
+            print(key)
+        except Exception as ex:
+            print(f'Error on listening keyboard: {ex}')
 
 
 class PynputKeyboard(Keyboard):
@@ -40,6 +52,11 @@ class PynputKeyboard(Keyboard):
             return
 
         print(f'Executing {hotkey}')
+        self.__hotkey(hotkey)
 
     def __hotkey(self, hotkey: str):
         keys = hotkey.split('+')
+        for key in keys:
+            self.__keyboard.press(KeyCode.from_vk(CHAR_TO_VK_CODE[key]))
+        for key in keys[::-1]:
+            self.__keyboard.release(KeyCode.from_vk(CHAR_TO_VK_CODE[key]))
