@@ -24,6 +24,7 @@ class ThreadController:
         recognizer_thread = Thread(
             target=self.__recognizer.recognize_and_handle_command)
 
+
         self.__mu.acquire()
         server_thread.start()
         recognizer_thread.start()
