@@ -5,7 +5,7 @@ audio:
   sample_format: 8 # port audio 16 bit int
 
 model:
-  path: "models/russian/vosk-small-0.22"
+  path: "voice_models/russian/vosk-small-0.22"
 
 virtual_keyboard:
   commands_path: "commands/commands.json"

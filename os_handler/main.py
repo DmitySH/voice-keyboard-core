@@ -3,6 +3,7 @@ import yaml
 from listener.microphone_listener import MicrophoneListener, AudioConfig
 from recognizer.vosk_recognizer import VoskRecognizer
 from server.grpc_server import GrpcServer
+from server.services.commands import CommandsService
 from threads.controller import ThreadController
 from virtual_keyboard.pynput_keyboard import PynputKeyboard
 
@@ -34,7 +35,13 @@ def main():
         config['virtual_keyboard']['similarity_threshold']
     )
 
-    server = GrpcServer(config['server']['address'])
+    commands_service_observers = {
+        'add_command': [virtual_keyboard.update]
+    }
+    services = [CommandsService(config['virtual_keyboard']['commands_path'],
+                                commands_service_observers)]
+
+    server = GrpcServer(config['server']['address'], services)
 
     recognizer = VoskRecognizer(listener, config['model']['path'],
                                 virtual_keyboard,

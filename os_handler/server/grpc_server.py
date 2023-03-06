@@ -1,20 +1,22 @@
 from concurrent import futures
-from typing import NoReturn
+from typing import NoReturn, List
 
 import grpc
 from pb import commands_pb2_grpc
 
 from server.base import Server
-from server.services.commands import CommandsService
 
 
 class GrpcServer(Server):
-    def __init__(self, address: str) -> None:
+    def __init__(self, address: str,
+                 services: List[commands_pb2_grpc.CommandsServicer]) -> None:
         self.__address = address
         self.__server = grpc.server(futures.ThreadPoolExecutor(max_workers=2))
         self.__server.add_insecure_port(self.__address)
-        commands_pb2_grpc.add_CommandsServicer_to_server(
-            CommandsService(), self.__server)
+
+        for service in services:
+            commands_pb2_grpc.add_CommandsServicer_to_server(
+                service, self.__server)
 
     def serve(self) -> NoReturn:
         self.__server.start()

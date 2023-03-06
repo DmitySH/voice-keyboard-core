@@ -1,4 +1,5 @@
 import json
+from threading import Lock
 from typing import NoReturn, Dict, List, Tuple
 
 from pynput import keyboard
@@ -7,7 +8,6 @@ from virtual_keyboard.base import Keyboard
 from pynput.keyboard import Controller, KeyCode
 from Levenshtein import ratio
 
-VK_CODES_PATH = 'vk_codes.json'
 DEBUG = False
 
 
@@ -27,21 +27,28 @@ class PynputKeyboard(Keyboard):
         self.__commands: Dict[str, str] = dict()
         self.__vk_codes: Dict[str, str] = dict()
         self.__similarity_threshold = similarity_threshold
+        self.__commands_path = commands_path
+        self.__mu = Lock()
 
-        try:
-            with open(commands_path, encoding='utf-8') as file:
-                self.__commands = json.load(file)
-        except Exception:
-            print("Can't read file with commands. "
-                  "Commands dictionary is empty")
+        self.__read_commands_file()
 
         with open(vk_codes_path, encoding='utf-8') as file:
             self.__vk_codes = json.load(file)
 
         if DEBUG:
-            listener = keyboard.Listener(
-                on_press=print_pressed_keys)
+            listener = keyboard.Listener(on_press=print_pressed_keys)
             listener.start()
+
+    def __read_commands_file(self) -> NoReturn:
+        try:
+            with open(self.__commands_path, encoding='utf-8') as file:
+                self.__mu.acquire()
+                self.__commands = json.load(file)
+                self.__mu.release()
+        except Exception:
+
+            print("Can't read file with commands. "
+                  "Commands dictionary is empty")
 
     def handle_commands(self, commands: List[str]) -> NoReturn:
         for cmd in commands:
@@ -55,7 +62,10 @@ class PynputKeyboard(Keyboard):
             print(f'Command {cmd} not found')
             return
 
+        self.__mu.acquire()
         hotkey = self.__commands[max_similarity_cmd]
+        self.__mu.release()
+
         self.__activate_hotkey(hotkey)
 
     def __compare_commands_by_levenshtein(self, cmd: str) -> Tuple[float, str]:
@@ -89,3 +99,6 @@ class PynputKeyboard(Keyboard):
                 return False
 
         return True
+
+    def update(self) -> NoReturn:
+        self.__read_commands_file()
