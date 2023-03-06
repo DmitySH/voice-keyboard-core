@@ -19,12 +19,23 @@ class CommandsStub(object):
                 request_serializer=commands__pb2.AddCommandRequest.SerializeToString,
                 response_deserializer=commands__pb2.AddCommandResponse.FromString,
                 )
+        self.DeleteCommand = channel.unary_unary(
+                '/commands.Commands/DeleteCommand',
+                request_serializer=commands__pb2.DeleteCommandRequest.SerializeToString,
+                response_deserializer=commands__pb2.DeleteCommandResponse.FromString,
+                )
 
 
 class CommandsServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def AddCommand(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def DeleteCommand(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -37,6 +48,11 @@ def add_CommandsServicer_to_server(servicer, server):
                     servicer.AddCommand,
                     request_deserializer=commands__pb2.AddCommandRequest.FromString,
                     response_serializer=commands__pb2.AddCommandResponse.SerializeToString,
+            ),
+            'DeleteCommand': grpc.unary_unary_rpc_method_handler(
+                    servicer.DeleteCommand,
+                    request_deserializer=commands__pb2.DeleteCommandRequest.FromString,
+                    response_serializer=commands__pb2.DeleteCommandResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -62,5 +78,22 @@ class Commands(object):
         return grpc.experimental.unary_unary(request, target, '/commands.Commands/AddCommand',
             commands__pb2.AddCommandRequest.SerializeToString,
             commands__pb2.AddCommandResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def DeleteCommand(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/commands.Commands/DeleteCommand',
+            commands__pb2.DeleteCommandRequest.SerializeToString,
+            commands__pb2.DeleteCommandResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

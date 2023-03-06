@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0e\x63ommands.proto\x12\x08\x63ommands\"4\n\x11\x41\x64\x64\x43ommandRequest\x12\x0f\n\x07\x63ommand\x18\x01 \x01(\t\x12\x0e\n\x06hotkey\x18\x02 \x01(\t\"3\n\x12\x41\x64\x64\x43ommandResponse\x12\x0e\n\x06status\x18\x01 \x01(\x03\x12\r\n\x05\x65rror\x18\x02 \x01(\t2S\n\x08\x43ommands\x12G\n\nAddCommand\x12\x1b.commands.AddCommandRequest\x1a\x1c.commands.AddCommandResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0e\x63ommands.proto\x12\x08\x63ommands\"4\n\x11\x41\x64\x64\x43ommandRequest\x12\x0f\n\x07\x63ommand\x18\x01 \x01(\t\x12\x0e\n\x06hotkey\x18\x02 \x01(\t\"3\n\x12\x41\x64\x64\x43ommandResponse\x12\x0e\n\x06status\x18\x01 \x01(\x03\x12\r\n\x05\x65rror\x18\x02 \x01(\t\"\'\n\x14\x44\x65leteCommandRequest\x12\x0f\n\x07\x63ommand\x18\x01 \x01(\t\"6\n\x15\x44\x65leteCommandResponse\x12\x0e\n\x06status\x18\x01 \x01(\x03\x12\r\n\x05\x65rror\x18\x02 \x01(\t2\xa5\x01\n\x08\x43ommands\x12G\n\nAddCommand\x12\x1b.commands.AddCommandRequest\x1a\x1c.commands.AddCommandResponse\x12P\n\rDeleteCommand\x12\x1e.commands.DeleteCommandRequest\x1a\x1f.commands.DeleteCommandResponseb\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'commands_pb2', globals())
@@ -24,6 +24,10 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _ADDCOMMANDREQUEST._serialized_end=80
   _ADDCOMMANDRESPONSE._serialized_start=82
   _ADDCOMMANDRESPONSE._serialized_end=133
-  _COMMANDS._serialized_start=135
-  _COMMANDS._serialized_end=218
+  _DELETECOMMANDREQUEST._serialized_start=135
+  _DELETECOMMANDREQUEST._serialized_end=174
+  _DELETECOMMANDRESPONSE._serialized_start=176
+  _DELETECOMMANDRESPONSE._serialized_end=230
+  _COMMANDS._serialized_start=233
+  _COMMANDS._serialized_end=398
 # @@protoc_insertion_point(module_scope)

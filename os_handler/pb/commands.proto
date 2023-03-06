@@ -4,6 +4,7 @@ package commands;
 
 service Commands {
   rpc AddCommand(AddCommandRequest) returns (AddCommandResponse);
+  rpc DeleteCommand(DeleteCommandRequest) returns (DeleteCommandResponse);
 }
 
 message AddCommandRequest {
@@ -12,6 +13,15 @@ message AddCommandRequest {
 }
 
 message AddCommandResponse {
+  int64 status = 1;
+  string error = 2;
+}
+
+message DeleteCommandRequest {
+  string command = 1;
+}
+
+message DeleteCommandResponse{
   int64 status = 1;
   string error = 2;
 }

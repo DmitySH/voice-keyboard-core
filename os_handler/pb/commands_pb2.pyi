@@ -19,3 +19,17 @@ class AddCommandResponse(_message.Message):
     error: str
     status: int
     def __init__(self, status: _Optional[int] = ..., error: _Optional[str] = ...) -> None: ...
+
+class DeleteCommandRequest(_message.Message):
+    __slots__ = ["command"]
+    COMMAND_FIELD_NUMBER: _ClassVar[int]
+    command: str
+    def __init__(self, command: _Optional[str] = ...) -> None: ...
+
+class DeleteCommandResponse(_message.Message):
+    __slots__ = ["error", "status"]
+    ERROR_FIELD_NUMBER: _ClassVar[int]
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    error: str
+    status: int
+    def __init__(self, status: _Optional[int] = ..., error: _Optional[str] = ...) -> None: ...
