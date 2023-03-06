@@ -1,9 +1,9 @@
 import json
-from threading import Lock
 from typing import Dict
 
 from pb.commands_pb2_grpc import CommandsServicer
-from pb.commands_pb2 import AddCommandResponse, DeleteCommandResponse
+from pb.commands_pb2 import AddCommandResponse, DeleteCommandResponse, \
+    GetCommandsResponse
 
 
 class CommandsService(CommandsServicer):
@@ -60,7 +60,6 @@ class CommandsService(CommandsServicer):
                 error=f"command {request.command} is not exists")
 
         commands.pop(request.command)
-        print(commands)
 
         try:
             with open(self.__commands_path, 'w', encoding='utf-8') as file:
@@ -72,3 +71,20 @@ class CommandsService(CommandsServicer):
         self.__notify_observers('delete_command')
 
         return DeleteCommandResponse(status=200, error='')
+
+    def GetCommands(self, request, context):
+        print(f'Get commands')
+
+        try:
+            with open(self.__commands_path, encoding='utf-8') as file:
+                commands = json.load(file)
+        except Exception:
+            return GetCommandsResponse(status=500,
+                                       error="can't read commands file",
+                                       commands=None)
+
+        self.__notify_observers('get_commands')
+
+        return GetCommandsResponse(status=200,
+                                   error='',
+                                   commands=commands)

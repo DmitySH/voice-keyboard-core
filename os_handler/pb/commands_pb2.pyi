@@ -1,6 +1,8 @@
+from google.protobuf import empty_pb2 as _empty_pb2
+from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Optional as _Optional
+from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Optional
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -33,3 +35,20 @@ class DeleteCommandResponse(_message.Message):
     error: str
     status: int
     def __init__(self, status: _Optional[int] = ..., error: _Optional[str] = ...) -> None: ...
+
+class GetCommandsResponse(_message.Message):
+    __slots__ = ["commands", "error", "status"]
+    class CommandsEntry(_message.Message):
+        __slots__ = ["key", "value"]
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: str
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
+    COMMANDS_FIELD_NUMBER: _ClassVar[int]
+    ERROR_FIELD_NUMBER: _ClassVar[int]
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    commands: _containers.ScalarMap[str, str]
+    error: str
+    status: int
+    def __init__(self, commands: _Optional[_Mapping[str, str]] = ..., status: _Optional[int] = ..., error: _Optional[str] = ...) -> None: ...
