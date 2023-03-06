@@ -25,21 +25,12 @@ class VoskRecognizer(Recognizer):
         self.__keyboard = keyboard
 
         self.__in_work = False
-        self.__is_stopped = False
-
         self.__mu = Lock()
 
         self.__trigger = 'клава'
 
-    @property
-    def is_stopped(self) -> bool:
-        return self.__is_stopped
-
     def recognize_and_handle_command(self) -> NoReturn:
         self.__mu.acquire()
-        if self.__is_stopped:
-            print('Recognizer is stopped already')
-            return
 
         self.__listener.listen()
         self.__in_work = True
@@ -58,12 +49,8 @@ class VoskRecognizer(Recognizer):
         print('Stop voice recognition')
 
         self.__listener.stop()
-        self.__is_stopped = True
 
     def stop(self) -> NoReturn:
         self.__mu.acquire()
-        if self.__in_work:
-            self.__in_work = False
-        else:
-            self.__is_stopped = True
+        self.__in_work = False
         self.__mu.release()
