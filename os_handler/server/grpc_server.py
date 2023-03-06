@@ -10,11 +10,16 @@ from server.services.commands import CommandsService
 
 class GrpcServer(Server):
     def __init__(self, address: str) -> None:
+        self.__is_stopped = False
         self.__address = address
         self.__server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
         self.__server.add_insecure_port(self.__address)
         commands_pb2_grpc.add_CommandsServicer_to_server(
             CommandsService(), self.__server)
+
+    @property
+    def is_stopped(self):
+        return self.__is_stopped
 
     def serve(self) -> NoReturn:
         self.__server.start()
@@ -22,4 +27,6 @@ class GrpcServer(Server):
         self.__server.wait_for_termination()
 
     def stop(self) -> NoReturn:
-        self.__server.stop()
+        self.__server.stop(grace=None)
+        print('Server stopped')
+        self.__is_stopped = True
