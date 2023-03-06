@@ -43,7 +43,11 @@ class PynputKeyboard(Keyboard):
                 on_press=print_pressed_keys)
             listener.start()
 
-    def handle_command(self, cmd: str) -> NoReturn:
+    def handle_commands(self, commands: List[str]) -> NoReturn:
+        for cmd in commands:
+            self.__handle_command(cmd)
+
+    def __handle_command(self, cmd: str) -> NoReturn:
         max_similarity, max_similarity_cmd = \
             self.__compare_commands_by_levenshtein(cmd)
 

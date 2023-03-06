@@ -31,7 +31,7 @@ def main():
     virtual_keyboard = PynputKeyboard(
         config['virtual_keyboard']['commands_path'],
         config['virtual_keyboard']['vk_codes_path'],
-        0.55
+        config['virtual_keyboard']['similarity_threshold']
     )
 
     server = GrpcServer(config['server']['address'])

@@ -39,13 +39,14 @@ class VoskRecognizer(Recognizer):
 
         while self.__in_work:
             if self.__recognizer.AcceptWaveform(self.__listener.read()):
-                cmd: str = json.loads(self.__recognizer.Result())['text']
-                if cmd:
-                    trigger_index = cmd.find(self.__trigger)
-                    if trigger_index != -1:
-                        cmd = cmd[trigger_index + len(self.__trigger):].strip()
-                        print(cmd)
-                        self.__keyboard.handle_command(cmd)
+                recognized_text: str = json.loads(self.__recognizer.Result())[
+                    'text']
+                if recognized_text:
+                    commands = [cmd.strip() for cmd in
+                                recognized_text.split(self.__trigger)[1:]]
+
+                    print(commands)
+                    self.__keyboard.handle_commands(commands)
         print('Stop voice recognition')
 
         self.__listener.stop()
