@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package commands;
+
+service Commands {
+  rpc AddCommand(AddCommandRequest) returns (AddCommandResponse);
+}
+
+message AddCommandRequest {
+  string command = 1;
+  string hotkey = 2;
+}
+
+message AddCommandResponse {
+  int64 status = 1;
+  string error = 2;
+}

@@ -10,3 +10,6 @@ model:
 virtual_keyboard:
   commands_path: "commands/commands.json"
   vk_codes_path: "config/vk_codes.json"
+
+server:
+  address: "localhost:50033"

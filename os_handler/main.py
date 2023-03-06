@@ -5,6 +5,7 @@ import yaml
 
 from listener.microphone_listener import MicrophoneListener, AudioConfig
 from recognizer.vosk_recognizer import VoskRecognizer
+from server.grpc_server import GrpcServer
 from virtual_keyboard.pynput_keyboard import PynputKeyboard
 from shutdown.graceful import bind_stop_signals
 
@@ -37,6 +38,10 @@ def main():
         config['virtual_keyboard']['vk_codes_path'],
         0.55
     )
+
+    server = GrpcServer(config['server']['address'])
+    server.serve()
+
     recognizer = VoskRecognizer(listener, config['model']['path'],
                                 virtual_keyboard,
                                 audio_config)
