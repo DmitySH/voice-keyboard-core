@@ -1,8 +1,8 @@
 import json
-from typing import Dict, Tuple
+from typing import Dict, Tuple, NoReturn
 
-from pb.commands_pb2_grpc import CommandsServicer
-from pb.commands_pb2 import DefaultResponse, GetCommandsResponse
+from pb.commands.commands_pb2_grpc import CommandsServicer
+from pb.commands.commands_pb2 import DefaultResponse, GetCommandsResponse
 
 
 class CommandsService(CommandsServicer):
@@ -10,7 +10,7 @@ class CommandsService(CommandsServicer):
         self.__commands_path = commands_path
         self.__observers = observers
 
-    def __notify_observers(self, method: str):
+    def __notify_observers(self, method: str) -> NoReturn:
         if method in self.__observers:
             for observer in self.__observers[method]:
                 observer()
@@ -21,11 +21,11 @@ class CommandsService(CommandsServicer):
             with open(path, encoding='utf-8') as file:
                 commands = json.load(file)
         except FileNotFoundError:
-            return {'status': 404, 'error': "commands file not found"}, {}
+            return {}, {'status': 404, 'error': "commands file not found"}
         except OSError:
-            return {'status': 500, 'error': "can't read commands file"}, {}
+            return {}, {'status': 500, 'error': "can't read commands file"}
 
-        return {}, commands
+        return commands, {}
 
     @staticmethod
     def __write_commands_file(path: str, commands: Dict) -> Dict:

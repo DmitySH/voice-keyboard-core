@@ -29,6 +29,8 @@ class VoskRecognizer(Recognizer):
 
         self.__trigger = 'клава'
 
+        self.__is_microphone_on = True
+
     def recognize_and_handle_command(self) -> NoReturn:
         self.__mu.acquire()
 
@@ -41,7 +43,7 @@ class VoskRecognizer(Recognizer):
             if self.__recognizer.AcceptWaveform(self.__listener.read()):
                 recognized_text: str = json.loads(self.__recognizer.Result())[
                     'text']
-                if recognized_text:
+                if recognized_text and self.__is_microphone_on:
                     commands = [cmd.strip() for cmd in
                                 recognized_text.split(self.__trigger)[1:]]
 
@@ -55,3 +57,9 @@ class VoskRecognizer(Recognizer):
         self.__mu.acquire()
         self.__in_work = False
         self.__mu.release()
+
+    def mute(self) -> NoReturn:
+        self.__is_microphone_on = False
+
+    def unmute(self) -> NoReturn:
+        self.__is_microphone_on = True

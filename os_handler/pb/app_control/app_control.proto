@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package app_control;
+
+service AppControl {
+  rpc ChangeMicrophoneStatus(ChangeMicrophoneStatusRequest) returns (DefaultResponse);
+}
+
+message DefaultResponse {
+  int64 status = 1;
+  string error = 2;
+}
+
+
+message ChangeMicrophoneStatusRequest {
+  bool on = 1;
+}

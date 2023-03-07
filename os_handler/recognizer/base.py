@@ -8,3 +8,9 @@ class Recognizer(abc.ABC):
 
     def stop(self) -> NoReturn:
         raise NotImplementedError()
+
+    def mute(self) -> NoReturn:
+        raise NotImplementedError()
+
+    def unmute(self) -> NoReturn:
+        raise NotImplementedError()
