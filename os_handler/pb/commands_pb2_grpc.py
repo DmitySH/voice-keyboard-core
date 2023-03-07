@@ -35,6 +35,11 @@ class CommandsStub(object):
                 request_serializer=commands__pb2.ImportCommandsRequest.SerializeToString,
                 response_deserializer=commands__pb2.DefaultResponse.FromString,
                 )
+        self.ExportCommands = channel.unary_unary(
+                '/commands.Commands/ExportCommands',
+                request_serializer=commands__pb2.ExportCommandsRequest.SerializeToString,
+                response_deserializer=commands__pb2.DefaultResponse.FromString,
+                )
 
 
 class CommandsServicer(object):
@@ -64,6 +69,12 @@ class CommandsServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def ExportCommands(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_CommandsServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -85,6 +96,11 @@ def add_CommandsServicer_to_server(servicer, server):
             'ImportCommands': grpc.unary_unary_rpc_method_handler(
                     servicer.ImportCommands,
                     request_deserializer=commands__pb2.ImportCommandsRequest.FromString,
+                    response_serializer=commands__pb2.DefaultResponse.SerializeToString,
+            ),
+            'ExportCommands': grpc.unary_unary_rpc_method_handler(
+                    servicer.ExportCommands,
+                    request_deserializer=commands__pb2.ExportCommandsRequest.FromString,
                     response_serializer=commands__pb2.DefaultResponse.SerializeToString,
             ),
     }
@@ -161,6 +177,23 @@ class Commands(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/commands.Commands/ImportCommands',
             commands__pb2.ImportCommandsRequest.SerializeToString,
+            commands__pb2.DefaultResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def ExportCommands(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/commands.Commands/ExportCommands',
+            commands__pb2.ExportCommandsRequest.SerializeToString,
             commands__pb2.DefaultResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

@@ -9,6 +9,7 @@ service Commands {
   rpc DeleteCommand(DeleteCommandRequest) returns (DefaultResponse);
   rpc GetCommands(google.protobuf.Empty) returns (GetCommandsResponse);
   rpc ImportCommands(ImportCommandsRequest) returns (DefaultResponse);
+  rpc ExportCommands(ExportCommandsRequest) returns (DefaultResponse);
 }
 
 message AddCommandRequest {
@@ -32,5 +33,9 @@ message GetCommandsResponse{
 }
 
 message ImportCommandsRequest{
+  string path = 1;
+}
+
+message ExportCommandsRequest{
   string path = 1;
 }

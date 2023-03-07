@@ -28,6 +28,12 @@ class DeleteCommandRequest(_message.Message):
     command: str
     def __init__(self, command: _Optional[str] = ...) -> None: ...
 
+class ExportCommandsRequest(_message.Message):
+    __slots__ = ["path"]
+    PATH_FIELD_NUMBER: _ClassVar[int]
+    path: str
+    def __init__(self, path: _Optional[str] = ...) -> None: ...
+
 class GetCommandsResponse(_message.Message):
     __slots__ = ["commands", "error", "status"]
     class CommandsEntry(_message.Message):

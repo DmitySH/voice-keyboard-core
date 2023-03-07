@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0e\x63ommands.proto\x12\x08\x63ommands\x1a\x1bgoogle/protobuf/empty.proto\"4\n\x11\x41\x64\x64\x43ommandRequest\x12\x0f\n\x07\x63ommand\x18\x01 \x01(\t\x12\x0e\n\x06hotkey\x18\x02 \x01(\t\"0\n\x0f\x44\x65\x66\x61ultResponse\x12\x0e\n\x06status\x18\x01 \x01(\x03\x12\r\n\x05\x65rror\x18\x02 \x01(\t\"\'\n\x14\x44\x65leteCommandRequest\x12\x0f\n\x07\x63ommand\x18\x01 \x01(\t\"\xa4\x01\n\x13GetCommandsResponse\x12=\n\x08\x63ommands\x18\x01 \x03(\x0b\x32+.commands.GetCommandsResponse.CommandsEntry\x12\x0e\n\x06status\x18\x02 \x01(\x03\x12\r\n\x05\x65rror\x18\x03 \x01(\t\x1a/\n\rCommandsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"%\n\x15ImportCommandsRequest\x12\x0c\n\x04path\x18\x01 \x01(\t2\xb0\x02\n\x08\x43ommands\x12\x44\n\nAddCommand\x12\x1b.commands.AddCommandRequest\x1a\x19.commands.DefaultResponse\x12J\n\rDeleteCommand\x12\x1e.commands.DeleteCommandRequest\x1a\x19.commands.DefaultResponse\x12\x44\n\x0bGetCommands\x12\x16.google.protobuf.Empty\x1a\x1d.commands.GetCommandsResponse\x12L\n\x0eImportCommands\x12\x1f.commands.ImportCommandsRequest\x1a\x19.commands.DefaultResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0e\x63ommands.proto\x12\x08\x63ommands\x1a\x1bgoogle/protobuf/empty.proto\"4\n\x11\x41\x64\x64\x43ommandRequest\x12\x0f\n\x07\x63ommand\x18\x01 \x01(\t\x12\x0e\n\x06hotkey\x18\x02 \x01(\t\"0\n\x0f\x44\x65\x66\x61ultResponse\x12\x0e\n\x06status\x18\x01 \x01(\x03\x12\r\n\x05\x65rror\x18\x02 \x01(\t\"\'\n\x14\x44\x65leteCommandRequest\x12\x0f\n\x07\x63ommand\x18\x01 \x01(\t\"\xa4\x01\n\x13GetCommandsResponse\x12=\n\x08\x63ommands\x18\x01 \x03(\x0b\x32+.commands.GetCommandsResponse.CommandsEntry\x12\x0e\n\x06status\x18\x02 \x01(\x03\x12\r\n\x05\x65rror\x18\x03 \x01(\t\x1a/\n\rCommandsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"%\n\x15ImportCommandsRequest\x12\x0c\n\x04path\x18\x01 \x01(\t\"%\n\x15\x45xportCommandsRequest\x12\x0c\n\x04path\x18\x01 \x01(\t2\xfe\x02\n\x08\x43ommands\x12\x44\n\nAddCommand\x12\x1b.commands.AddCommandRequest\x1a\x19.commands.DefaultResponse\x12J\n\rDeleteCommand\x12\x1e.commands.DeleteCommandRequest\x1a\x19.commands.DefaultResponse\x12\x44\n\x0bGetCommands\x12\x16.google.protobuf.Empty\x1a\x1d.commands.GetCommandsResponse\x12L\n\x0eImportCommands\x12\x1f.commands.ImportCommandsRequest\x1a\x19.commands.DefaultResponse\x12L\n\x0e\x45xportCommands\x12\x1f.commands.ExportCommandsRequest\x1a\x19.commands.DefaultResponseb\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'commands_pb2', globals())
@@ -35,6 +35,8 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _GETCOMMANDSRESPONSE_COMMANDSENTRY._serialized_end=367
   _IMPORTCOMMANDSREQUEST._serialized_start=369
   _IMPORTCOMMANDSREQUEST._serialized_end=406
-  _COMMANDS._serialized_start=409
-  _COMMANDS._serialized_end=713
+  _EXPORTCOMMANDSREQUEST._serialized_start=408
+  _EXPORTCOMMANDSREQUEST._serialized_end=445
+  _COMMANDS._serialized_start=448
+  _COMMANDS._serialized_end=830
 # @@protoc_insertion_point(module_scope)

@@ -108,3 +108,19 @@ class CommandsService(CommandsServicer):
         self.__notify_observers('import_commands')
 
         return DefaultResponse(status=200, error='')
+
+    def ExportCommands(self, request, context):
+        print(f'Export commands: {request}')
+
+        commands, err_dict = self.__read_commands_file(self.__commands_path)
+        if err_dict:
+            return DefaultResponse(**err_dict)
+
+        err_dict = self.__write_commands_file(request.path,
+                                              commands)
+        if err_dict:
+            return DefaultResponse(**err_dict)
+
+        self.__notify_observers('export_commands')
+
+        return DefaultResponse(status=200, error='')

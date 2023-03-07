@@ -39,6 +39,7 @@ def main():
         'add_command': [virtual_keyboard.update],
         'delete_command': [virtual_keyboard.update],
         'import_commands': [virtual_keyboard.update],
+        'export_commands': [virtual_keyboard.update],
     }
     services = [CommandsService(config['virtual_keyboard']['commands_path'],
                                 commands_service_observers)]
