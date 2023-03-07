@@ -45,8 +45,7 @@ class PynputKeyboard(Keyboard):
                 self.__mu.acquire()
                 self.__commands = json.load(file)
                 self.__mu.release()
-        except Exception:
-
+        except OSError:
             print("Can't read file with commands. "
                   "Commands dictionary is empty")
 
@@ -55,6 +54,10 @@ class PynputKeyboard(Keyboard):
             self.__handle_command(cmd)
 
     def __handle_command(self, cmd: str) -> NoReturn:
+        if self.__is_type_command(cmd):
+            self.__handle_type_command(cmd)
+            return
+
         max_similarity, max_similarity_cmd = \
             self.__compare_commands_by_levenshtein(cmd)
 
@@ -67,6 +70,20 @@ class PynputKeyboard(Keyboard):
         self.__mu.release()
 
         self.__activate_hotkey(hotkey)
+
+    @staticmethod
+    def __is_type_command(cmd: str) -> bool:
+        first_space_symbol_idx = cmd.find(' ')
+        return first_space_symbol_idx != -1 \
+               and first_space_symbol_idx < 11 \
+               and cmd[:first_space_symbol_idx].startswith('напечата')
+
+    def __handle_type_command(self, cmd: str) -> NoReturn:
+        first_space_symbol_idx = cmd.find(' ')
+        text_to_type = cmd[first_space_symbol_idx + 1:]
+        print(f'Typing: {text_to_type}')
+
+        self.__keyboard.type(text_to_type)
 
     def __compare_commands_by_levenshtein(self, cmd: str) -> Tuple[float, str]:
         max_similarity, max_similarity_cmd = -1, ''
@@ -85,7 +102,7 @@ class PynputKeyboard(Keyboard):
         if not self.__check_keys(keys):
             return
 
-        print(f'Executing {hotkey}')
+        print(f'Executing: {hotkey}')
 
         for key in keys:
             self.__keyboard.press(KeyCode.from_vk(self.__vk_codes[key]))
@@ -95,7 +112,7 @@ class PynputKeyboard(Keyboard):
     def __check_keys(self, keys: List[str]) -> bool:
         for key in keys:
             if key not in self.__vk_codes:
-                print(f'Unknown key {key}')
+                print(f'Unknown key: {key}')
                 return False
 
         return True
