@@ -5,9 +5,10 @@ import "google/protobuf/empty.proto";
 package commands;
 
 service Commands {
-  rpc AddCommand(AddCommandRequest) returns (AddCommandResponse);
-  rpc DeleteCommand(DeleteCommandRequest) returns (DeleteCommandResponse);
+  rpc AddCommand(AddCommandRequest) returns (DefaultResponse);
+  rpc DeleteCommand(DeleteCommandRequest) returns (DefaultResponse);
   rpc GetCommands(google.protobuf.Empty) returns (GetCommandsResponse);
+  rpc ImportCommands(ImportCommandsRequest) returns (DefaultResponse);
 }
 
 message AddCommandRequest {
@@ -15,7 +16,7 @@ message AddCommandRequest {
   string hotkey = 2;
 }
 
-message AddCommandResponse {
+message DefaultResponse {
   int64 status = 1;
   string error = 2;
 }
@@ -24,13 +25,12 @@ message DeleteCommandRequest {
   string command = 1;
 }
 
-message DeleteCommandResponse{
-  int64 status = 1;
-  string error = 2;
-}
-
 message GetCommandsResponse{
   map<string, string> commands = 1;
   int64 status = 2;
   string error = 3;
+}
+
+message ImportCommandsRequest{
+  string path = 1;
 }

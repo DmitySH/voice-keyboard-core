@@ -14,7 +14,7 @@ class AddCommandRequest(_message.Message):
     hotkey: str
     def __init__(self, command: _Optional[str] = ..., hotkey: _Optional[str] = ...) -> None: ...
 
-class AddCommandResponse(_message.Message):
+class DefaultResponse(_message.Message):
     __slots__ = ["error", "status"]
     ERROR_FIELD_NUMBER: _ClassVar[int]
     STATUS_FIELD_NUMBER: _ClassVar[int]
@@ -27,14 +27,6 @@ class DeleteCommandRequest(_message.Message):
     COMMAND_FIELD_NUMBER: _ClassVar[int]
     command: str
     def __init__(self, command: _Optional[str] = ...) -> None: ...
-
-class DeleteCommandResponse(_message.Message):
-    __slots__ = ["error", "status"]
-    ERROR_FIELD_NUMBER: _ClassVar[int]
-    STATUS_FIELD_NUMBER: _ClassVar[int]
-    error: str
-    status: int
-    def __init__(self, status: _Optional[int] = ..., error: _Optional[str] = ...) -> None: ...
 
 class GetCommandsResponse(_message.Message):
     __slots__ = ["commands", "error", "status"]
@@ -52,3 +44,9 @@ class GetCommandsResponse(_message.Message):
     error: str
     status: int
     def __init__(self, commands: _Optional[_Mapping[str, str]] = ..., status: _Optional[int] = ..., error: _Optional[str] = ...) -> None: ...
+
+class ImportCommandsRequest(_message.Message):
+    __slots__ = ["path"]
+    PATH_FIELD_NUMBER: _ClassVar[int]
+    path: str
+    def __init__(self, path: _Optional[str] = ...) -> None: ...

@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import pb.commands_pb2 as commands__pb2
+import commands_pb2 as commands__pb2
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
@@ -18,17 +18,22 @@ class CommandsStub(object):
         self.AddCommand = channel.unary_unary(
                 '/commands.Commands/AddCommand',
                 request_serializer=commands__pb2.AddCommandRequest.SerializeToString,
-                response_deserializer=commands__pb2.AddCommandResponse.FromString,
+                response_deserializer=commands__pb2.DefaultResponse.FromString,
                 )
         self.DeleteCommand = channel.unary_unary(
                 '/commands.Commands/DeleteCommand',
                 request_serializer=commands__pb2.DeleteCommandRequest.SerializeToString,
-                response_deserializer=commands__pb2.DeleteCommandResponse.FromString,
+                response_deserializer=commands__pb2.DefaultResponse.FromString,
                 )
         self.GetCommands = channel.unary_unary(
                 '/commands.Commands/GetCommands',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=commands__pb2.GetCommandsResponse.FromString,
+                )
+        self.ImportCommands = channel.unary_unary(
+                '/commands.Commands/ImportCommands',
+                request_serializer=commands__pb2.ImportCommandsRequest.SerializeToString,
+                response_deserializer=commands__pb2.DefaultResponse.FromString,
                 )
 
 
@@ -53,23 +58,34 @@ class CommandsServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def ImportCommands(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_CommandsServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'AddCommand': grpc.unary_unary_rpc_method_handler(
                     servicer.AddCommand,
                     request_deserializer=commands__pb2.AddCommandRequest.FromString,
-                    response_serializer=commands__pb2.AddCommandResponse.SerializeToString,
+                    response_serializer=commands__pb2.DefaultResponse.SerializeToString,
             ),
             'DeleteCommand': grpc.unary_unary_rpc_method_handler(
                     servicer.DeleteCommand,
                     request_deserializer=commands__pb2.DeleteCommandRequest.FromString,
-                    response_serializer=commands__pb2.DeleteCommandResponse.SerializeToString,
+                    response_serializer=commands__pb2.DefaultResponse.SerializeToString,
             ),
             'GetCommands': grpc.unary_unary_rpc_method_handler(
                     servicer.GetCommands,
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                     response_serializer=commands__pb2.GetCommandsResponse.SerializeToString,
+            ),
+            'ImportCommands': grpc.unary_unary_rpc_method_handler(
+                    servicer.ImportCommands,
+                    request_deserializer=commands__pb2.ImportCommandsRequest.FromString,
+                    response_serializer=commands__pb2.DefaultResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -94,7 +110,7 @@ class Commands(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/commands.Commands/AddCommand',
             commands__pb2.AddCommandRequest.SerializeToString,
-            commands__pb2.AddCommandResponse.FromString,
+            commands__pb2.DefaultResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -111,7 +127,7 @@ class Commands(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/commands.Commands/DeleteCommand',
             commands__pb2.DeleteCommandRequest.SerializeToString,
-            commands__pb2.DeleteCommandResponse.FromString,
+            commands__pb2.DefaultResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -129,5 +145,22 @@ class Commands(object):
         return grpc.experimental.unary_unary(request, target, '/commands.Commands/GetCommands',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             commands__pb2.GetCommandsResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def ImportCommands(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/commands.Commands/ImportCommands',
+            commands__pb2.ImportCommandsRequest.SerializeToString,
+            commands__pb2.DefaultResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
