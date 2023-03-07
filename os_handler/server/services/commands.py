@@ -1,5 +1,5 @@
 import json
-from typing import Dict
+from typing import Dict, Tuple
 
 from pb.commands_pb2_grpc import CommandsServicer
 from pb.commands_pb2 import AddCommandResponse, DeleteCommandResponse, \
@@ -16,15 +16,32 @@ class CommandsService(CommandsServicer):
             for observer in self.__observers[method]:
                 observer()
 
-    def AddCommand(self, request, context):
-        print(f'Add command: {request}')
-
+    def __read_commands_file(self) -> Tuple[Dict, Dict]:
         try:
             with open(self.__commands_path, encoding='utf-8') as file:
                 commands = json.load(file)
-        except Exception:
-            return AddCommandResponse(status=500,
-                                      error="can't read commands file")
+        except FileNotFoundError:
+            return {'status': 404, 'error': "commands file not found"}, {}
+        except OSError:
+            return {'status': 500, 'error': "can't read commands file"}, {}
+
+        return {}, commands
+
+    def __write_commands_file(self, commands: Dict) -> Dict:
+        try:
+            with open(self.__commands_path, 'w', encoding='utf-8') as file:
+                json.dump(commands, file, ensure_ascii=False)
+        except FileNotFoundError:
+            return {'status': 404, 'error': "commands file not found"}
+        except OSError:
+            return {'status': 500, 'error': "can't read commands file"}
+
+    def AddCommand(self, request, context):
+        print(f'Add command: {request}')
+
+        commands, err_dict = self.__read_commands_file()
+        if err_dict:
+            return AddCommandResponse(**err_dict)
 
         if request.command in commands:
             return AddCommandResponse(
@@ -33,12 +50,9 @@ class CommandsService(CommandsServicer):
 
         commands[request.command] = request.hotkey
 
-        try:
-            with open(self.__commands_path, 'w', encoding='utf-8') as file:
-                json.dump(commands, file, ensure_ascii=False)
-        except Exception:
-            return AddCommandResponse(status=500,
-                                      error="can't write commands file")
+        err_dict = self.__write_commands_file(commands)
+        if err_dict:
+            return AddCommandResponse(**err_dict)
 
         self.__notify_observers('add_command')
 
@@ -47,12 +61,9 @@ class CommandsService(CommandsServicer):
     def DeleteCommand(self, request, context):
         print(f'Delete command: {request}')
 
-        try:
-            with open(self.__commands_path, encoding='utf-8') as file:
-                commands = json.load(file)
-        except Exception:
-            return DeleteCommandResponse(status=500,
-                                         error="can't read commands file")
+        commands, err_dict = self.__read_commands_file()
+        if err_dict:
+            return DeleteCommandResponse(**err_dict)
 
         if request.command not in commands:
             return DeleteCommandResponse(
@@ -61,12 +72,9 @@ class CommandsService(CommandsServicer):
 
         commands.pop(request.command)
 
-        try:
-            with open(self.__commands_path, 'w', encoding='utf-8') as file:
-                json.dump(commands, file, ensure_ascii=False)
-        except Exception:
-            return DeleteCommandResponse(status=500,
-                                         error="can't write commands file")
+        commands, err_dict = self.__write_commands_file(commands)
+        if err_dict:
+            return AddCommandResponse(**err_dict)
 
         self.__notify_observers('delete_command')
 
@@ -75,16 +83,11 @@ class CommandsService(CommandsServicer):
     def GetCommands(self, request, context):
         print(f'Get commands')
 
-        try:
-            with open(self.__commands_path, encoding='utf-8') as file:
-                commands = json.load(file)
-        except Exception:
-            return GetCommandsResponse(status=500,
-                                       error="can't read commands file",
-                                       commands=None)
+        commands, err_dict = self.__read_commands_file()
+        if err_dict:
+            return GetCommandsResponse(commands=None, **err_dict)
 
         self.__notify_observers('get_commands')
 
-        return GetCommandsResponse(status=200,
-                                   error='',
+        return GetCommandsResponse(status=200, error='',
                                    commands=commands)
