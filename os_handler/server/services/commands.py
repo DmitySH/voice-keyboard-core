@@ -24,6 +24,8 @@ class CommandsService(CommandsServicer):
             return {}, {'status': 404, 'error': "commands file not found"}
         except OSError:
             return {}, {'status': 500, 'error': "can't read commands file"}
+        except json.JSONDecodeError:
+            return {}, {'status': 400, 'error': "incorrect json in file"}
 
         return commands, {}
 
