@@ -1,4 +1,5 @@
 import json
+import os
 from threading import Lock
 from typing import NoReturn, Dict, List, Tuple
 
@@ -46,8 +47,14 @@ class PynputKeyboard(Keyboard):
                 self.__commands = json.load(file)
                 self.__mu.release()
         except OSError:
-            print("Can't read file with commands. "
-                  "Commands dictionary is empty")
+            try:
+                basedir = os.path.dirname(self.__commands_path)
+                if not os.path.exists(basedir):
+                    os.makedirs(basedir)
+                open(self.__commands_path, 'a').close()
+            except OSError as ex:
+                print("Can't create commands file")
+                raise ex
 
     def handle_commands(self, commands: List[str]) -> NoReturn:
         for cmd in commands:
