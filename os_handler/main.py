@@ -1,3 +1,7 @@
+import os
+import sys
+from argparse import ArgumentParser
+
 import yaml
 
 from listener.microphone_listener import MicrophoneListener, AudioConfig
@@ -28,13 +32,22 @@ def load_config():
 
 
 def main():
+    arg_parser = ArgumentParser()
+    arg_parser.add_argument("-p", "--path", dest="commands_path",
+                            help="path to file commands.json")
+    args = arg_parser.parse_args()
+    print(args.commands_path)
+    if not args.commands_path or not os.path.exists(args.commands_path):
+        print('Incorrect commands path')
+        exit(-2)
+
     config = load_config()
     audio_config = AudioConfig(**config['audio'])
 
     listener = MicrophoneListener(audio_config)
 
     virtual_keyboard = PynputKeyboard(
-        config['virtual_keyboard']['commands_path'],
+        args.commands_path,
         config['virtual_keyboard']['vk_codes_path'],
         config['virtual_keyboard']['similarity_threshold']
     )
@@ -66,6 +79,8 @@ def main():
     thread_controller.bind_stop_signals()
     thread_controller.start_all()
     thread_controller.wait_everything_for_finish()
+
+    virtual_keyboard.save_commands_file(args.commands_path)
 
 
 if __name__ == '__main__':

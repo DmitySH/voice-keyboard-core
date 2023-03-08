@@ -40,6 +40,10 @@ class PynputKeyboard(Keyboard):
             listener = keyboard.Listener(on_press=print_pressed_keys)
             listener.start()
 
+    def save_commands_file(self, path: str) -> NoReturn:
+        with open(path, 'w', encoding='utf-8') as file:
+            json.dump(self.__commands, file, ensure_ascii=False)
+
     def __read_commands_file(self) -> NoReturn:
         try:
             with open(self.__commands_path, encoding='utf-8') as file:
@@ -51,7 +55,8 @@ class PynputKeyboard(Keyboard):
                 basedir = os.path.dirname(self.__commands_path)
                 if not os.path.exists(basedir):
                     os.makedirs(basedir)
-                open(self.__commands_path, 'a').close()
+                with open(self.__commands_path, 'w') as file:
+                    json.dump({}, file)
             except OSError as ex:
                 print("Can't create commands file")
                 raise ex
