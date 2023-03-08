@@ -2,11 +2,11 @@ import json
 from threading import Lock
 from typing import NoReturn, Dict, List, Tuple
 
+from Levenshtein import ratio
 from pynput import keyboard
+from pynput.keyboard import Controller, KeyCode
 
 from virtual_keyboard.base import Keyboard
-from pynput.keyboard import Controller, KeyCode
-from Levenshtein import ratio
 
 DEBUG = False
 

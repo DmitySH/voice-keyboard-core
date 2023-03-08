@@ -1,6 +1,5 @@
-from pb.app_control.app_control_pb2_grpc import AppControlServicer
 from pb.app_control.app_control_pb2 import DefaultResponse
-
+from pb.app_control.app_control_pb2_grpc import AppControlServicer
 from recognizer.base import Recognizer
 
 

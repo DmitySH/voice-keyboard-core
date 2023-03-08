@@ -1,15 +1,14 @@
 import yaml
 
 from listener.microphone_listener import MicrophoneListener, AudioConfig
+from pb.app_control import app_control_pb2_grpc
+from pb.commands import commands_pb2_grpc
 from recognizer.vosk_recognizer import VoskRecognizer
 from server.grpc_server import GrpcServer
 from server.services.app_control import AppControlService
 from server.services.commands import CommandsService
 from threads.controller import ThreadController
 from virtual_keyboard.pynput_keyboard import PynputKeyboard
-
-from pb.commands import commands_pb2_grpc
-from pb.app_control import app_control_pb2_grpc
 
 CONFIG_PATH = 'config/config.yaml'
 

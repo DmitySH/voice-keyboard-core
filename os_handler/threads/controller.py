@@ -1,5 +1,4 @@
 import signal
-import time
 from threading import Thread, Event, Lock
 from typing import List
 
@@ -23,7 +22,6 @@ class ThreadController:
         server_thread = Thread(target=self.__server.serve)
         recognizer_thread = Thread(
             target=self.__recognizer.recognize_and_handle_command)
-
 
         self.__mu.acquire()
         server_thread.start()

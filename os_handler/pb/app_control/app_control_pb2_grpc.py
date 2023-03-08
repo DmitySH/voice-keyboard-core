@@ -15,10 +15,10 @@ class AppControlStub(object):
             channel: A grpc.Channel.
         """
         self.ChangeMicrophoneStatus = channel.unary_unary(
-                '/app_control.AppControl/ChangeMicrophoneStatus',
-                request_serializer=app__control__pb2.ChangeMicrophoneStatusRequest.SerializeToString,
-                response_deserializer=app__control__pb2.DefaultResponse.FromString,
-                )
+            '/app_control.AppControl/ChangeMicrophoneStatus',
+            request_serializer=app__control__pb2.ChangeMicrophoneStatusRequest.SerializeToString,
+            response_deserializer=app__control__pb2.DefaultResponse.FromString,
+        )
 
 
 class AppControlServicer(object):
@@ -33,34 +33,37 @@ class AppControlServicer(object):
 
 def add_AppControlServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'ChangeMicrophoneStatus': grpc.unary_unary_rpc_method_handler(
-                    servicer.ChangeMicrophoneStatus,
-                    request_deserializer=app__control__pb2.ChangeMicrophoneStatusRequest.FromString,
-                    response_serializer=app__control__pb2.DefaultResponse.SerializeToString,
-            ),
+        'ChangeMicrophoneStatus': grpc.unary_unary_rpc_method_handler(
+            servicer.ChangeMicrophoneStatus,
+            request_deserializer=app__control__pb2.ChangeMicrophoneStatusRequest.FromString,
+            response_serializer=app__control__pb2.DefaultResponse.SerializeToString,
+        ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'app_control.AppControl', rpc_method_handlers)
+        'app_control.AppControl', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
- # This class is part of an EXPERIMENTAL API.
+# This class is part of an EXPERIMENTAL API.
 class AppControl(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
     def ChangeMicrophoneStatus(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/app_control.AppControl/ChangeMicrophoneStatus',
-            app__control__pb2.ChangeMicrophoneStatusRequest.SerializeToString,
-            app__control__pb2.DefaultResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+                               target,
+                               options=(),
+                               channel_credentials=None,
+                               call_credentials=None,
+                               insecure=False,
+                               compression=None,
+                               wait_for_ready=None,
+                               timeout=None,
+                               metadata=None):
+        return grpc.experimental.unary_unary(request, target,
+                                             '/app_control.AppControl/ChangeMicrophoneStatus',
+                                             app__control__pb2.ChangeMicrophoneStatusRequest.SerializeToString,
+                                             app__control__pb2.DefaultResponse.FromString,
+                                             options, channel_credentials,
+                                             insecure, call_credentials,
+                                             compression, wait_for_ready,
+                                             timeout, metadata)

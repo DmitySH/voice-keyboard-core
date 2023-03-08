@@ -1,8 +1,8 @@
 import json
 from typing import Dict, Tuple, NoReturn
 
-from pb.commands.commands_pb2_grpc import CommandsServicer
 from pb.commands.commands_pb2 import DefaultResponse, GetCommandsResponse
+from pb.commands.commands_pb2_grpc import CommandsServicer
 
 
 class CommandsService(CommandsServicer):
