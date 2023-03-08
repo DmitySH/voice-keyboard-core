@@ -1,4 +1,5 @@
 import os
+import pathlib
 import sys
 from argparse import ArgumentParser
 
@@ -15,6 +16,7 @@ from threads.controller import ThreadController
 from virtual_keyboard.pynput_keyboard import PynputKeyboard
 
 CONFIG_PATH = 'config/config.yaml'
+SCRIPT_DIR = 'os_handler'
 
 
 def load_config():
@@ -32,18 +34,23 @@ def load_config():
 
 
 def main():
+    script_path = pathlib.Path(__file__).parent.resolve()
+    if not str(script_path).endswith(SCRIPT_DIR):
+        os.chdir(sys._MEIPASS)
+
+    config = load_config()
+
     arg_parser = ArgumentParser()
     arg_parser.add_argument("-p", "--path", dest="commands_path",
-                            help="path to file commands.json")
+                            help="path to file commands.json",
+                            default=config['virtual_keyboard']['commands_path'])
     args = arg_parser.parse_args()
-    print(args.commands_path)
-    if not args.commands_path or not os.path.exists(args.commands_path):
+
+    if not os.path.exists(args.commands_path):
         print('Incorrect commands path')
         exit(-2)
 
-    config = load_config()
     audio_config = AudioConfig(**config['audio'])
-
     listener = MicrophoneListener(audio_config)
 
     virtual_keyboard = PynputKeyboard(
