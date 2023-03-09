@@ -1,5 +1,11 @@
 .idea
 venv
+
 docs.txt
+commands.txt
+
 **/build
 **/dist
+
+utilities
+*.spec
