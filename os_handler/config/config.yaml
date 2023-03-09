@@ -9,8 +9,9 @@ model:
 
 virtual_keyboard:
   commands_path: "commands/commands.json"
-  vk_codes_path: "config/vk_codes.json"
   similarity_threshold: 0.55
 
 server:
   address: "localhost:50033"
+
+platform: "windows"
