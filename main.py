@@ -1,5 +1,4 @@
 import os
-import pathlib
 import sys
 from argparse import ArgumentParser, Namespace
 
@@ -16,7 +15,6 @@ from threads.controller import ThreadController
 from virtual_keyboard.pynput_keyboard import PynputKeyboard
 
 CONFIG_PATH = 'config/config.yaml'
-SCRIPT_DIR = 'os_handler'
 
 
 def load_config():
@@ -55,21 +53,19 @@ def load_args(config) -> Namespace:
 
 
 def main():
-    script_path = pathlib.Path(__file__).parent.resolve()
-    if not str(script_path).endswith(SCRIPT_DIR):
-        os.chdir(sys._MEIPASS)
-
     config = load_config()
     args = load_args(config)
+
+    os.chdir(sys._MEIPASS)
 
     audio_config = AudioConfig(**config['audio'])
     listener = MicrophoneListener(audio_config)
 
     vk_codes_path = 'config/vk_codes_windows.json' \
-        if args.plarform == 'windows' else 'config/vk_codes_macos.json'
+        if args.platform == 'windows' else 'config/vk_codes_macos.json'
     virtual_keyboard = PynputKeyboard(
+        args.commands_path,
         vk_codes_path,
-        config['virtual_keyboard']['vk_codes_path'],
         config['virtual_keyboard']['similarity_threshold']
     )
 
