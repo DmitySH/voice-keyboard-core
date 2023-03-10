@@ -83,7 +83,7 @@ def main():
     server = GrpcServer(config['server']['address'])
     commands_pb2_grpc.add_CommandsServicer_to_server(
         CommandsService(config['virtual_keyboard']['commands_path'],
-                        commands_service_observers),
+                        vk_codes_path, commands_service_observers),
         server.server
     )
     app_control_pb2_grpc.add_AppControlServicer_to_server(

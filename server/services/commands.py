@@ -1,14 +1,19 @@
 import json
-from typing import Dict, Tuple, NoReturn
+from typing import Dict, Tuple, NoReturn, Set, List
 
 from pb.commands.commands_pb2 import DefaultResponse, GetCommandsResponse
 from pb.commands.commands_pb2_grpc import CommandsServicer
 
 
 class CommandsService(CommandsServicer):
-    def __init__(self, commands_path: str, observers: Dict) -> None:
+    def __init__(self, commands_path: str, vk_codes_path: str,
+                 observers: Dict) -> None:
         self.__commands_path = commands_path
         self.__observers = observers
+        self.__supported_vk_keys: Set[str] = set()
+
+        with open(vk_codes_path, encoding='utf-8') as file:
+            self.__supported_vk_keys = set(json.load(file).keys())
 
     def __notify_observers(self, method: str) -> NoReturn:
         if method in self.__observers:
@@ -39,12 +44,21 @@ class CommandsService(CommandsServicer):
         except OSError:
             return {'status': 500, 'error': "can't read commands file"}
 
+    def __check_key_is_supported(self, vk_keys: List[str]) -> NoReturn:
+        for key in vk_keys:
+            if key not in self.__supported_vk_keys:
+                return DefaultResponse(
+                    status=400,
+                    error=f"key {key} is not supported")
+
     def AddCommand(self, request, context):
         print(f'Add command: {request}')
 
         commands, err_dict = self.__read_commands_file(self.__commands_path)
         if err_dict:
             return DefaultResponse(**err_dict)
+
+        self.__check_key_is_supported(request.hotkey.split('+'))
 
         if request.command in commands:
             return DefaultResponse(
@@ -101,6 +115,9 @@ class CommandsService(CommandsServicer):
         new_commands, err_dict = self.__read_commands_file(request.path)
         if err_dict:
             return DefaultResponse(**err_dict)
+
+        for hotkey in new_commands.values():
+            self.__check_key_is_supported(hotkey.split('+'))
 
         err_dict = self.__write_commands_file(self.__commands_path,
                                               new_commands)
