@@ -3,6 +3,7 @@ from typing import Dict, Tuple, NoReturn, Set, List
 
 from pb.commands.commands_pb2 import DefaultResponse, GetCommandsResponse
 from pb.commands.commands_pb2_grpc import CommandsServicer
+from server.exceptions.commands import InvalidHotkeyError, InvalidCommandError
 
 
 class CommandsService(CommandsServicer):
@@ -44,12 +45,18 @@ class CommandsService(CommandsServicer):
         except OSError:
             return {'status': 500, 'error': "can't read commands file"}
 
-    def __check_key_is_supported(self, vk_keys: List[str]) -> NoReturn:
+    def __check_keys_supported(self, vk_keys: List[str]) -> NoReturn:
         for key in vk_keys:
             if key not in self.__supported_vk_keys:
-                return DefaultResponse(
-                    status=400,
-                    error=f"key {key} is not supported")
+                raise InvalidHotkeyError(key)
+
+    @staticmethod
+    def __check_type_command(cmd: str) -> NoReturn:
+        first_space_symbol_idx = cmd.find(' ')
+        if first_space_symbol_idx != -1 \
+                and first_space_symbol_idx < 11 \
+                and cmd[:first_space_symbol_idx].startswith('напечата'):
+            raise InvalidCommandError(cmd)
 
     def AddCommand(self, request, context):
         print(f'Add command: {request}')
@@ -58,7 +65,17 @@ class CommandsService(CommandsServicer):
         if err_dict:
             return DefaultResponse(**err_dict)
 
-        self.__check_key_is_supported(request.hotkey.split('+'))
+        try:
+            self.__check_type_command(request.command)
+            self.__check_keys_supported(request.hotkey.split('+'))
+        except InvalidCommandError as ex:
+            return DefaultResponse(
+                status=400,
+                error=f"first word in {ex.command} can't be like 'напечатай'")
+        except InvalidHotkeyError as ex:
+            return DefaultResponse(
+                status=400,
+                error=f"key {ex.key} is not supported")
 
         if request.command in commands:
             return DefaultResponse(
@@ -116,8 +133,18 @@ class CommandsService(CommandsServicer):
         if err_dict:
             return DefaultResponse(**err_dict)
 
-        for hotkey in new_commands.values():
-            self.__check_key_is_supported(hotkey.split('+'))
+        for command, hotkey in new_commands.items():
+            try:
+                self.__check_type_command(request.command)
+                self.__check_keys_supported(hotkey.split('+'))
+            except InvalidCommandError as ex:
+                return DefaultResponse(
+                    status=400,
+                    error=f"first word in {ex.command} can't be like 'напечатай'")
+            except InvalidHotkeyError as ex:
+                return DefaultResponse(
+                    status=400,
+                    error=f"key {ex.key} is not supported")
 
         err_dict = self.__write_commands_file(self.__commands_path,
                                               new_commands)
