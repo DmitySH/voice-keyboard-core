@@ -73,17 +73,10 @@ def main():
                                 virtual_keyboard,
                                 audio_config)
 
-    commands_service_observers = {
-        'add_command': [virtual_keyboard.update],
-        'delete_command': [virtual_keyboard.update],
-        'import_commands': [virtual_keyboard.update],
-        'export_commands': [virtual_keyboard.update],
-    }
-
     server = GrpcServer(config['server']['address'])
     commands_pb2_grpc.add_CommandsServicer_to_server(
         CommandsService(config['virtual_keyboard']['commands_path'],
-                        vk_codes_path, commands_service_observers),
+                        vk_codes_path, virtual_keyboard),
         server.server
     )
     app_control_pb2_grpc.add_AppControlServicer_to_server(

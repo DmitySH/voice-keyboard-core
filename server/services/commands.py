@@ -4,22 +4,18 @@ from typing import Dict, Tuple, NoReturn, Set, List
 from pb.commands.commands_pb2 import DefaultResponse, GetCommandsResponse
 from pb.commands.commands_pb2_grpc import CommandsServicer
 from server.exceptions.commands import InvalidHotkeyError, InvalidCommandError
+from virtual_keyboard.base import Keyboard
 
 
 class CommandsService(CommandsServicer):
     def __init__(self, commands_path: str, vk_codes_path: str,
-                 observers: Dict) -> None:
+                 keyboard: Keyboard) -> None:
         self.__commands_path = commands_path
-        self.__observers = observers
+        self.__keyboard = keyboard
         self.__supported_vk_keys: Set[str] = set()
 
         with open(vk_codes_path, encoding='utf-8') as file:
             self.__supported_vk_keys = set(json.load(file).keys())
-
-    def __notify_observers(self, method: str) -> NoReturn:
-        if method in self.__observers:
-            for observer in self.__observers[method]:
-                observer()
 
     @staticmethod
     def __read_commands_file(path: str) -> Tuple[Dict, Dict]:
@@ -54,7 +50,7 @@ class CommandsService(CommandsServicer):
     def __check_type_command(cmd: str) -> NoReturn:
         first_space_symbol_idx = cmd.find(' ')
         if first_space_symbol_idx != -1 \
-                and first_space_symbol_idx < 11 \
+                and first_space_symbol_idx < 12 \
                 and cmd[:first_space_symbol_idx].startswith('напечата'):
             raise InvalidCommandError(cmd)
 
@@ -88,7 +84,7 @@ class CommandsService(CommandsServicer):
         if err_dict:
             return DefaultResponse(**err_dict)
 
-        self.__notify_observers('add_command')
+        self.__keyboard.update()
 
         return DefaultResponse(status=201, error='')
 
@@ -111,7 +107,7 @@ class CommandsService(CommandsServicer):
         if err_dict:
             return DefaultResponse(**err_dict)
 
-        self.__notify_observers('delete_command')
+        self.__keyboard.update()
 
         return DefaultResponse(status=200, error='')
 
@@ -121,8 +117,6 @@ class CommandsService(CommandsServicer):
         commands, err_dict = self.__read_commands_file(self.__commands_path)
         if err_dict:
             return GetCommandsResponse(commands=None, **err_dict)
-
-        self.__notify_observers('get_commands')
 
         return GetCommandsResponse(status=200, error='', commands=commands)
 
@@ -151,7 +145,7 @@ class CommandsService(CommandsServicer):
         if err_dict:
             return DefaultResponse(**err_dict)
 
-        self.__notify_observers('import_commands')
+        self.__keyboard.update()
 
         return DefaultResponse(status=200, error='')
 
@@ -166,7 +160,5 @@ class CommandsService(CommandsServicer):
                                               commands)
         if err_dict:
             return DefaultResponse(**err_dict)
-
-        self.__notify_observers('export_commands')
 
         return DefaultResponse(status=200, error='')
