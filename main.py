@@ -1,7 +1,8 @@
 import os
 import sys
-from argparse import ArgumentParser, Namespace
+from typing import NoReturn
 
+import click
 import yaml
 
 from listener.microphone_listener import MicrophoneListener, AudioConfig
@@ -31,30 +32,22 @@ def load_config():
     return config
 
 
-def load_args(config) -> Namespace:
-    arg_parser = ArgumentParser()
-    arg_parser.add_argument("-c", "--commands-path", dest="commands_path",
-                            help="path to file commands.json",
-                            default=config['virtual_keyboard'][
-                                'commands_path'])
-    arg_parser.add_argument("-p", "--platform", dest="platform",
-                            help="platform where script executes",
-                            default=config['platform'])
-    args = arg_parser.parse_args()
-
-    if not os.path.exists(args.commands_path):
+def check_commands_path(commands_path: str) -> NoReturn:
+    if not os.path.exists(commands_path):
         print('Incorrect commands path')
         exit(-2)
-    if args.platform not in ('windows', 'macos'):
-        print('Incorrect platform. Should be windows/macos')
-        exit(-3)
-
-    return args
 
 
-def main():
+@click.option("-p", "--platform", required=True,
+              help="Platform where core will be running",
+              type=click.Choice(["windows", "macos"]))
+@click.option("-c", "--commands-path", required=True,
+              help="Path to file in JSON format where to store commands",
+              type=str)
+@click.command()
+def main(platform: str, commands_path: str):
+    check_commands_path(commands_path)
     config = load_config()
-    args = load_args(config)
 
     os.chdir(sys._MEIPASS)
 
@@ -62,9 +55,9 @@ def main():
     listener = MicrophoneListener(audio_config)
 
     vk_codes_path = 'config/vk_codes_windows.json' \
-        if args.platform == 'windows' else 'config/vk_codes_macos.json'
+        if platform == 'windows' else 'config/vk_codes_macos.json'
     virtual_keyboard = PynputKeyboard(
-        args.commands_path,
+        commands_path,
         vk_codes_path,
         config['virtual_keyboard']['similarity_threshold']
     )
@@ -90,7 +83,7 @@ def main():
     thread_controller.start_all()
     thread_controller.wait_everything_for_finish()
 
-    virtual_keyboard.save_commands_file(args.commands_path)
+    virtual_keyboard.save_commands_file(commands_path)
 
 
 if __name__ == '__main__':
