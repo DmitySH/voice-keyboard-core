@@ -47,15 +47,17 @@ def check_commands_path(commands_path: str) -> NoReturn:
 @click.command()
 def main(platform: str, commands_path: str):
     check_commands_path(commands_path)
-    config = load_config()
 
     os.chdir(sys._MEIPASS)
+    config = load_config()
 
     audio_config = AudioConfig(**config['audio'])
     listener = MicrophoneListener(audio_config)
 
-    vk_codes_path = 'config/vk_codes_windows.json' \
-        if platform == 'windows' else 'config/vk_codes_macos.json'
+    vk_codes_filename = ' vk_codes_windows.json' if platform == 'windows' \
+        else 'vk_codes_macos.json'
+    vk_codes_path = os.path.join('config', vk_codes_filename)
+
     virtual_keyboard = PynputKeyboard(
         commands_path,
         vk_codes_path,
@@ -68,8 +70,7 @@ def main(platform: str, commands_path: str):
 
     server = GrpcServer(config['server']['address'])
     commands_pb2_grpc.add_CommandsServicer_to_server(
-        CommandsService(config['virtual_keyboard']['commands_path'],
-                        vk_codes_path, virtual_keyboard),
+        CommandsService(commands_path, vk_codes_path, virtual_keyboard),
         server.server
     )
     app_control_pb2_grpc.add_AppControlServicer_to_server(
