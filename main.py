@@ -54,7 +54,7 @@ def main(platform: str, commands_path: str):
     audio_config = AudioConfig(**config['audio'])
     listener = MicrophoneListener(audio_config)
 
-    vk_codes_filename = ' vk_codes_windows.json' if platform == 'windows' \
+    vk_codes_filename = 'vk_codes_windows.json' if platform == 'windows' \
         else 'vk_codes_macos.json'
     vk_codes_path = os.path.join('config', vk_codes_filename)
 
