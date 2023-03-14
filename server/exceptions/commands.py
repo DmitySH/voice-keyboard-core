@@ -1,10 +1,10 @@
 class InvalidCommandError(Exception):
-    def __init__(self, command: str, *args):
+    def __init__(self, message: str, *args) -> None:
         super().__init__(*args)
-        self.command = command
+        self.message = message
 
 
 class InvalidHotkeyError(Exception):
-    def __init__(self, key: str, *args):
+    def __init__(self, message: str, *args) -> None:
         super().__init__(*args)
-        self.key = key
+        self.message = message

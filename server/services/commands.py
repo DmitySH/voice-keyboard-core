@@ -18,6 +18,10 @@ class CommandsService(CommandsServicer):
         self.__keyboard = keyboard
         self.__supported_vk_keys: Set[str] = set()
 
+        allowed_symbols = [letter for letter in
+                           ' абвгдеёжзийклмнопрстуфхцчшщъыьэюя']
+        self.__allowed_command_symbols = set(allowed_symbols)
+
         with open(vk_codes_path, encoding='utf-8') as file:
             self.__supported_vk_keys = set(json.load(file).keys())
 
@@ -43,16 +47,14 @@ class CommandsService(CommandsServicer):
         except OSError:
             abort(ctx, code_pb2.INTERNAL, "can't write commands file")
 
-    def __check_command_and_hotkey(self, context, command: str, hotkey: str):
+    def __check_command_and_hotkey(self, context, command: str,
+                                   hotkey: str) -> NoReturn:
         try:
+            self.__check_command_is_correct(command)
             self.__check_type_command(command)
             self.__check_keys_supported(hotkey.split('+'))
-        except InvalidCommandError as ex:
-            abort(context, code_pb2.INVALID_ARGUMENT,
-                  f"first word in {ex.command} can't be like 'напечатай'")
-        except InvalidHotkeyError as ex:
-            abort(context, code_pb2.INVALID_ARGUMENT,
-                  f"key {ex.key} is not supported")
+        except (InvalidCommandError, InvalidHotkeyError) as ex:
+            abort(context, code_pb2.INVALID_ARGUMENT, ex.message)
 
     @staticmethod
     def __check_type_command(cmd: str) -> NoReturn:
@@ -60,19 +62,27 @@ class CommandsService(CommandsServicer):
         if first_space_symbol_idx != -1 \
                 and first_space_symbol_idx < 12 \
                 and cmd[:first_space_symbol_idx].startswith('напечата'):
-            raise InvalidCommandError(cmd)
+            raise InvalidCommandError(
+                f"first word in {cmd} can't be like 'напечатай'")
+
+    def __check_command_is_correct(self, cmd: str) -> NoReturn:
+        for sym in cmd:
+            if sym not in self.__allowed_command_symbols:
+                raise InvalidCommandError(
+                    f"symbol {sym} in command {cmd} is not allowed")
 
     def __check_keys_supported(self, vk_keys: List[str]) -> NoReturn:
         for key in vk_keys:
             if key not in self.__supported_vk_keys:
-                raise InvalidHotkeyError(key)
+                raise InvalidHotkeyError(f"key {key} is not supported")
 
     def AddCommand(self, request, context):
         print(f'Add command: {request}')
 
         commands = self.__read_commands_file(context, self.__commands_path)
 
-        self.__check_command_and_hotkey(context, request.command, request.hotkey)
+        self.__check_command_and_hotkey(context, request.command,
+                                        request.hotkey)
 
         if request.command in commands:
             abort(context, code_pb2.ALREADY_EXISTS,
