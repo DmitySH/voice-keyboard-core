@@ -1,9 +1,13 @@
 import json
-from typing import Dict, Tuple, NoReturn, Set, List
+from typing import Dict, NoReturn, Set, List
 
-from pb.commands.commands_pb2 import DefaultResponse, GetCommandsResponse
+from google.protobuf import empty_pb2
+from google.rpc import code_pb2
+
+from pb.commands.commands_pb2 import GetCommandsResponse
 from pb.commands.commands_pb2_grpc import CommandsServicer
 from server.exceptions.commands import InvalidHotkeyError, InvalidCommandError
+from server.grpc_server import abort
 from virtual_keyboard.base import Keyboard
 
 
@@ -18,33 +22,37 @@ class CommandsService(CommandsServicer):
             self.__supported_vk_keys = set(json.load(file).keys())
 
     @staticmethod
-    def __read_commands_file(path: str) -> Tuple[Dict, Dict]:
+    def __read_commands_file(ctx, path: str) -> Dict:
         try:
             with open(path, encoding='utf-8') as file:
                 commands = json.load(file)
         except FileNotFoundError:
-            return {}, {'status': 404, 'error': "commands file not found"}
-        except OSError:
-            return {}, {'status': 500, 'error': "can't read commands file"}
+            abort(ctx, code_pb2.NOT_FOUND, "commands file not found")
         except json.JSONDecodeError:
-            return {}, {'status': 400, 'error': "incorrect json in file"}
+            abort(ctx, code_pb2.INVALID_ARGUMENT, "incorrect json in file")
+        except OSError:
+            abort(ctx, code_pb2.INTERNAL, "can't read commands file")
 
-        return commands, {}
+        return commands
 
     @staticmethod
-    def __write_commands_file(path: str, commands: Dict) -> Dict:
+    def __write_commands_file(ctx, path: str, commands: Dict) -> NoReturn:
         try:
             with open(path, 'w', encoding='utf-8') as file:
                 json.dump(commands, file, ensure_ascii=False)
-        except FileNotFoundError:
-            return {'status': 404, 'error': "commands file not found"}
         except OSError:
-            return {'status': 500, 'error': "can't read commands file"}
+            abort(ctx, code_pb2.INTERNAL, "can't write commands file")
 
-    def __check_keys_supported(self, vk_keys: List[str]) -> NoReturn:
-        for key in vk_keys:
-            if key not in self.__supported_vk_keys:
-                raise InvalidHotkeyError(key)
+    def __check_command_and_hotkey(self, context, command: str, hotkey: str):
+        try:
+            self.__check_type_command(command)
+            self.__check_keys_supported(hotkey.split('+'))
+        except InvalidCommandError as ex:
+            abort(context, code_pb2.INVALID_ARGUMENT,
+                  f"first word in {ex.command} can't be like 'напечатай'")
+        except InvalidHotkeyError as ex:
+            abort(context, code_pb2.INVALID_ARGUMENT,
+                  f"key {ex.key} is not supported")
 
     @staticmethod
     def __check_type_command(cmd: str) -> NoReturn:
@@ -54,111 +62,69 @@ class CommandsService(CommandsServicer):
                 and cmd[:first_space_symbol_idx].startswith('напечата'):
             raise InvalidCommandError(cmd)
 
+    def __check_keys_supported(self, vk_keys: List[str]) -> NoReturn:
+        for key in vk_keys:
+            if key not in self.__supported_vk_keys:
+                raise InvalidHotkeyError(key)
+
     def AddCommand(self, request, context):
         print(f'Add command: {request}')
 
-        commands, err_dict = self.__read_commands_file(self.__commands_path)
-        if err_dict:
-            return DefaultResponse(**err_dict)
+        commands = self.__read_commands_file(context, self.__commands_path)
 
-        try:
-            self.__check_type_command(request.command)
-            self.__check_keys_supported(request.hotkey.split('+'))
-        except InvalidCommandError as ex:
-            return DefaultResponse(
-                status=400,
-                error=f"first word in {ex.command} can't be like 'напечатай'")
-        except InvalidHotkeyError as ex:
-            return DefaultResponse(
-                status=400,
-                error=f"key {ex.key} is not supported")
+        self.__check_command_and_hotkey(context, request.command, request.hotkey)
 
         if request.command in commands:
-            return DefaultResponse(
-                status=400,
-                error=f"command {request.command} already exists")
+            abort(context, code_pb2.ALREADY_EXISTS,
+                  f"command {request.command} already exists")
 
         commands[request.command] = request.hotkey
 
-        err_dict = self.__write_commands_file(self.__commands_path, commands)
-        if err_dict:
-            return DefaultResponse(**err_dict)
-
+        self.__write_commands_file(context, self.__commands_path, commands)
         self.__keyboard.update()
 
-        return DefaultResponse(status=201, error='')
+        return empty_pb2.Empty()
 
     def DeleteCommand(self, request, context):
         print(f'Delete command: {request}')
 
-        commands, err_dict = self.__read_commands_file(self.__commands_path)
-        if err_dict:
-            return DefaultResponse(**err_dict)
+        commands = self.__read_commands_file(context, self.__commands_path)
 
         if request.command not in commands:
-            return DefaultResponse(
-                status=404,
-                error=f"command {request.command} is not exists")
+            abort(context, code_pb2.NOT_FOUND,
+                  f"command {request.command} is not exists")
 
         commands.pop(request.command)
 
-        commands, err_dict = self.__write_commands_file(self.__commands_path,
-                                                        commands)
-        if err_dict:
-            return DefaultResponse(**err_dict)
-
+        self.__write_commands_file(context, self.__commands_path, commands)
         self.__keyboard.update()
 
-        return DefaultResponse(status=200, error='')
+        return empty_pb2.Empty()
 
     def GetCommands(self, request, context):
         print('Get commands')
 
-        commands, err_dict = self.__read_commands_file(self.__commands_path)
-        if err_dict:
-            return GetCommandsResponse(commands=None, **err_dict)
+        commands = self.__read_commands_file(context, self.__commands_path)
 
-        return GetCommandsResponse(status=200, error='', commands=commands)
+        return GetCommandsResponse(commands=commands)
 
     def ImportCommands(self, request, context):
         print(f'Import commands: {request}')
 
-        new_commands, err_dict = self.__read_commands_file(request.path)
-        if err_dict:
-            return DefaultResponse(**err_dict)
+        new_commands = self.__read_commands_file(context, request.path)
 
         for command, hotkey in new_commands.items():
-            try:
-                self.__check_type_command(request.command)
-                self.__check_keys_supported(hotkey.split('+'))
-            except InvalidCommandError as ex:
-                return DefaultResponse(
-                    status=400,
-                    error=f"first word in {ex.command} can't be like 'напечатай'")
-            except InvalidHotkeyError as ex:
-                return DefaultResponse(
-                    status=400,
-                    error=f"key {ex.key} is not supported")
+            self.__check_command_and_hotkey(context, command, hotkey)
 
-        err_dict = self.__write_commands_file(self.__commands_path,
-                                              new_commands)
-        if err_dict:
-            return DefaultResponse(**err_dict)
-
+        self.__write_commands_file(context, self.__commands_path, new_commands)
         self.__keyboard.update()
 
-        return DefaultResponse(status=200, error='')
+        return empty_pb2.Empty()
 
     def ExportCommands(self, request, context):
         print(f'Export commands: {request}')
 
-        commands, err_dict = self.__read_commands_file(self.__commands_path)
-        if err_dict:
-            return DefaultResponse(**err_dict)
+        commands = self.__read_commands_file(context, self.__commands_path)
+        self.__write_commands_file(context, request.path, commands)
 
-        err_dict = self.__write_commands_file(request.path,
-                                              commands)
-        if err_dict:
-            return DefaultResponse(**err_dict)
-
-        return DefaultResponse(status=200, error='')
+        return empty_pb2.Empty()

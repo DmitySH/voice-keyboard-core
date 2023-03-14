@@ -1,9 +1,23 @@
 from concurrent import futures
-from typing import NoReturn
+from typing import NoReturn, List
 
 import grpc
+from google.rpc import code_pb2, status_pb2
+from grpc_status import rpc_status
 
 from server.base import Server
+
+
+def abort(ctx, code: code_pb2.Code, msg: str = '',
+          details: List = None) -> NoReturn:
+    if details is None:
+        details = []
+
+    ctx.abort_with_status(rpc_status.to_status(status_pb2.Status(
+        code=code,
+        message=msg,
+        details=details,
+    )))
 
 
 class GrpcServer(Server):

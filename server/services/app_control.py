@@ -1,4 +1,5 @@
-from pb.app_control.app_control_pb2 import DefaultResponse
+from google.protobuf import empty_pb2
+
 from pb.app_control.app_control_pb2_grpc import AppControlServicer
 from recognizer.base import Recognizer
 
@@ -13,4 +14,4 @@ class AppControlService(AppControlServicer):
         else:
             self.__recognizer.mute()
 
-        return DefaultResponse(status=200, error="")
+        return empty_pb2.Empty()

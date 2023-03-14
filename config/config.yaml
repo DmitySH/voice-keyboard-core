@@ -8,7 +8,6 @@ model:
   path: "speech_to_text_models/russian/vosk-small-0.22"
 
 virtual_keyboard:
-  commands_path: "commands/commands.json"
   similarity_threshold: 0.55
 
 server:
