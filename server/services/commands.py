@@ -31,11 +31,11 @@ class CommandsService(CommandsServicer):
             with open(path, encoding='utf-8') as file:
                 commands = json.load(file)
         except FileNotFoundError:
-            abort(ctx, code_pb2.NOT_FOUND, "commands file not found")
+            abort(ctx, code_pb2.NOT_FOUND, "Файл с командами не найден")
         except json.JSONDecodeError:
-            abort(ctx, code_pb2.INVALID_ARGUMENT, "incorrect json in file")
+            abort(ctx, code_pb2.INVALID_ARGUMENT, "Некорректный JSON файл")
         except OSError:
-            abort(ctx, code_pb2.INTERNAL, "can't read commands file")
+            abort(ctx, code_pb2.INTERNAL, "Невозможно прочитать файл с командами")
 
         return commands
 
@@ -45,7 +45,7 @@ class CommandsService(CommandsServicer):
             with open(path, 'w', encoding='utf-8') as file:
                 json.dump(commands, file, ensure_ascii=False)
         except OSError:
-            abort(ctx, code_pb2.INTERNAL, "can't write commands file")
+            abort(ctx, code_pb2.INTERNAL, "Невозможно записать файл с командами")
 
     def __check_command_and_hotkey(self, context, command: str,
                                    hotkey: str) -> NoReturn:
@@ -63,18 +63,18 @@ class CommandsService(CommandsServicer):
                 and first_space_symbol_idx < 12 \
                 and cmd[:first_space_symbol_idx].startswith('напечата'):
             raise InvalidCommandError(
-                f"first word in {cmd} can't be like 'напечатай'")
+                f"Первое слово в команде не может быть похоже на 'напечатай'")
 
     def __check_command_is_correct(self, cmd: str) -> NoReturn:
         for sym in cmd:
             if sym not in self.__allowed_command_symbols:
                 raise InvalidCommandError(
-                    f"symbol {sym} in command {cmd} is not allowed")
+                    f"Символ {sym} в команде {cmd} не разрешен")
 
     def __check_keys_supported(self, vk_keys: List[str]) -> NoReturn:
         for key in vk_keys:
             if key not in self.__supported_vk_keys:
-                raise InvalidHotkeyError(f"key {key} is not supported")
+                raise InvalidHotkeyError(f"Клавиша {key} не поддерживается")
 
     def AddCommand(self, request, context):
         print(f'Add command: {request}')
@@ -86,7 +86,7 @@ class CommandsService(CommandsServicer):
 
         if request.command in commands:
             abort(context, code_pb2.ALREADY_EXISTS,
-                  f"command {request.command} already exists")
+                  f"Команда {request.command} уже существует")
 
         commands[request.command] = request.hotkey
 
@@ -102,7 +102,7 @@ class CommandsService(CommandsServicer):
 
         if request.command not in commands:
             abort(context, code_pb2.NOT_FOUND,
-                  f"command {request.command} is not exists")
+                  f"Команда {request.command} не существует")
 
         commands.pop(request.command)
 
