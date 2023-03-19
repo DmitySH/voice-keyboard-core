@@ -1,6 +1,10 @@
-.PHONY: run
-run:
+.PHONY: run-windows
+run-windows:
 	python main.py -p windows -c C:\Users\dm1tr\Desktop\voice-keyboard-core\commands\commands.json
+
+.PHONY: run-macos
+run-macos:
+	python main.py -p macos -c /Users/dshagarov/Desktop/voice-keyboard-core/commands/commands.json
 
 .PHONY: proto-python
 proto-python:
