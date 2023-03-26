@@ -1,4 +1,5 @@
 import json
+import os
 from typing import Dict, NoReturn, Set, List
 
 from google.protobuf import empty_pb2
@@ -41,6 +42,8 @@ class CommandsService(CommandsServicer):
 
     @staticmethod
     def __write_commands_file(ctx, path: str, commands: Dict) -> NoReturn:
+        if not os.path.exists(path):
+            abort(ctx, code_pb2.INVALID_ARGUMENT, f"Путь {path} не существует")
         try:
             with open(path, 'w', encoding='utf-8') as file:
                 json.dump(commands, file, ensure_ascii=False)
