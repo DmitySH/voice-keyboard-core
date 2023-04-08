@@ -12,5 +12,3 @@ virtual_keyboard:
 
 server:
   address: "localhost:50033"
-
-platform: "windows"

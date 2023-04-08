@@ -1,6 +1,6 @@
+import json
 import os
 import sys
-from typing import NoReturn
 
 import click
 import yaml
@@ -32,22 +32,41 @@ def load_config():
     return config
 
 
-def check_commands_path(commands_path: str) -> NoReturn:
-    if not os.path.exists(commands_path):
-        print('Incorrect commands path')
-        exit(-2)
+def create_paths_for_commands(path: str):
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+    path = os.path.join(path, 'commands.json')
+    if not os.path.exists(path):
+        with open(path, 'w') as file:
+            json.dump({}, file)
+
+    return path
+
+
+def get_commands_file_path(platform: str):
+    if platform == 'windows':
+        if not os.getenv('APPDATA'):
+            print('No appdata path is os.env')
+            exit(-1)
+        initial_path = os.path.join(os.getenv('APPDATA'), 'VoiceKeyboard')
+
+        return create_paths_for_commands(initial_path)
+
+    elif platform == 'macos':
+        initial_path = os.path.join(os.path.expanduser("~"), 'Library',
+                                    'VoiceKeyboard')
+
+        return create_paths_for_commands(initial_path)
+    else:
+        raise OSError('Unknown platform. Should be one of: [windows, macos]')
 
 
 @click.option("-p", "--platform", required=True,
               help="Platform where core will be running",
               type=click.Choice(["windows", "macos"]))
-@click.option("-c", "--commands-path", required=True,
-              help="Path to file in JSON format where to store commands",
-              type=str)
 @click.command()
-def main(platform: str, commands_path: str):
-    check_commands_path(commands_path)
-
+def main(platform: str):
     os.chdir(sys._MEIPASS)
     config = load_config()
 
@@ -57,6 +76,8 @@ def main(platform: str, commands_path: str):
     vk_codes_filename = 'vk_codes_windows.json' if platform == 'windows' \
         else 'vk_codes_macos.json'
     vk_codes_path = os.path.join('config', vk_codes_filename)
+
+    commands_path = get_commands_file_path(platform)
 
     virtual_keyboard = PynputKeyboard(
         commands_path,

@@ -1,5 +1,6 @@
 import json
 import os
+import time
 from threading import Lock
 from typing import NoReturn, Dict, List, Tuple
 
@@ -120,6 +121,7 @@ class PynputKeyboard(Keyboard):
             self.__keyboard.press(KeyCode.from_vk(self.__vk_codes[key]))
         for key in keys[::-1]:
             self.__keyboard.release(KeyCode.from_vk(self.__vk_codes[key]))
+        time.sleep(0.1)
 
     def __check_keys(self, keys: List[str]) -> bool:
         for key in keys:
