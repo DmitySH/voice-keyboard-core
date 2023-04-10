@@ -1,17 +1,17 @@
 from google.protobuf import empty_pb2
 
+from app.voice_keyboard import VoiceKeyboard
 from pb.app_control.app_control_pb2_grpc import AppControlServicer
-from recognizer.base import Recognizer
 
 
 class AppControlService(AppControlServicer):
-    def __init__(self, recognizer: Recognizer) -> None:
-        self.__recognizer = recognizer
+    def __init__(self, app: VoiceKeyboard) -> None:
+        self.__app = app
 
     def ChangeMicrophoneStatus(self, request, context):
         if request.on:
-            self.__recognizer.unmute()
+            self.__app.unmute()
         else:
-            self.__recognizer.mute()
+            self.__app.mute()
 
         return empty_pb2.Empty()

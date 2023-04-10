@@ -2,14 +2,14 @@ import signal
 from threading import Thread, Event, Lock
 from typing import List
 
-from recognizer.vosk_recognizer import VoskRecognizer
+from app.voice_keyboard import VoiceKeyboard
 from server.grpc_server import GrpcServer
 
 
 class ThreadController:
-    def __init__(self, recognizer: VoskRecognizer, server: GrpcServer,
+    def __init__(self, app: VoiceKeyboard, server: GrpcServer,
                  stop_poll_time: int) -> None:
-        self.__recognizer = recognizer
+        self.__app = app
         self.__server = server
 
         self.__active_threads: List[Thread] = []
@@ -20,8 +20,7 @@ class ThreadController:
 
     def start_all(self):
         server_thread = Thread(target=self.__server.serve)
-        recognizer_thread = Thread(
-            target=self.__recognizer.recognize_and_handle_command)
+        recognizer_thread = Thread(target=self.__app.run)
 
         self.__mu.acquire()
         server_thread.start()
@@ -34,7 +33,7 @@ class ThreadController:
         self.__mu.release()
 
     def stop_all(self):
-        self.__recognizer.stop()
+        self.__app.stop()
         self.__server.stop()
         self.__exit.set()
 
