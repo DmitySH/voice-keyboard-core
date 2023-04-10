@@ -5,6 +5,7 @@ import sys
 import click
 import yaml
 
+from app.voice_keyboard import VoiceKeyboard
 from listener.microphone_listener import MicrophoneListener, AudioConfig
 from pb.app_control import app_control_pb2_grpc
 from pb.commands import commands_pb2_grpc
@@ -85,9 +86,8 @@ def main(platform: str):
         config['virtual_keyboard']['similarity_threshold']
     )
 
-    recognizer = VoskRecognizer(listener, config['model']['path'],
-                                virtual_keyboard,
-                                audio_config)
+    recognizer = VoskRecognizer(config['model']['path'], audio_config)
+    app = VoiceKeyboard(recognizer, listener, virtual_keyboard)
 
     server = GrpcServer(config['server']['address'])
     commands_pb2_grpc.add_CommandsServicer_to_server(
@@ -95,11 +95,11 @@ def main(platform: str):
         server.server
     )
     app_control_pb2_grpc.add_AppControlServicer_to_server(
-        AppControlService(recognizer),
+        AppControlService(app),
         server.server
     )
 
-    thread_controller = ThreadController(recognizer, server, 3)
+    thread_controller = ThreadController(app, server, 3)
 
     thread_controller.bind_stop_signals()
     thread_controller.start_all()
